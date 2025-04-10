@@ -25,6 +25,34 @@
     margin-right: 5px;
 }
 
+.shopping-cart {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding:5px;
+    color: #9178e4;
+    gap: 2px;
+    text-decoration: none
+}
+.shopping-cart svg {
+    margin-right: -20px;
+}
+
+.cart-counter {
+    background-color: #ffd979;
+    color: #9178e4;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+
+}
+
 .custom-header .USP-text span {
     margin: 0 20px;
 }
@@ -166,6 +194,7 @@
     }
 }
 
+
 .card-img-top {
     width: 100%;
     height: 250px;
@@ -235,7 +264,72 @@
     background-color: #ffd979;
 }
 
-.product-display {
+.shopping-cart-items {
+    display: flex;
+    flex-direction: row;
+    max-width: 600px;
+    width: 100%;
+    padding: 10px;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.item-picture {
+    height: 200px;
+    width: 200px;
+    object-fit: contain;
+    flex-shrink: 0;
+
+}
+
+.item-details {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    flex-grow: 1;
+}
+
+.item-title {
+    font-size: 1rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.item-quantity {
+        flex-direction: column;
+        justify-content: flex-start;
+        display: flex;
+        font-size: 1rem;
+        color: pink;
+        padding: 20px;
+
+}
+
+.button-add {
+    color: white;
+    background-color: #9178e4;
+
+}
+
+.button-remove {
+    color: white;
+    background-color: #9178e4;
+}
+
+.button-homepage {
+    color: yellow;
+    background-color: #9178e4;
+    border-radius: 8px;
+    padding: 4px 6px;
+    font-size: 1rem;
+    font-weight:bold;
+    border: none;
+    width:auto;
+    cursor: pointer;
+    display: inline-block;
+}
+/*.product-display {
     display: flex;
     max-width: 600px;
     width: 100%;
@@ -265,7 +359,7 @@
     font-size: 12px;
     overflow: hidden;
     word-wrap: break-word;
-}
+}*/
 
 @media (max-width: 600px) {
     .product-display {

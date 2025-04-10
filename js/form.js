@@ -1,8 +1,8 @@
-document.addEventListener("DOMContentLoaded", function () {
-    const params = new URLSearchParams(window.location.search);
-    const productId = Number(params.get('id'));
+/*document.addEventListener("DOMContentLoaded", function () {
+    //const params = new URLSearchParams(window.location.search);
+    //const productId = Number(params.get('id'));
 
-    const storedProducts = JSON.parse(localStorage.getItem("items"))
+    const storedProducts = JSON.parse(localStorage.getItem("cart"))
     const selectedProduct = storedProducts.find(product=> product.id === productId);
 
     if (selectedProduct) {
@@ -10,6 +10,14 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
         console.error("Product not found!");
     }
+});*/
+
+document.addEventListener('DOMContentLoaded', function () {
+    displayItemsInTrolley();
+    cartCounter();
+    handleButtonClicks();
+    removeAllItems();
+
 });
 
 document.getElementById("myForm").addEventListener('submit', saveData);
@@ -24,7 +32,7 @@ function saveData(e) {
     const zipCodeInput = document.getElementById("zipcode").value
     const cityInput = document.getElementById("city").value
 
-    let confirmOrder = true;
+    let confirmOrder;
 
     confirmOrder = validateName(nameInput)
         && validateEmail(emailInput)
@@ -38,89 +46,173 @@ function saveData(e) {
     }
 
     window.location.href = "orderconfirmation.html";
+    localStorage.clear();
 }
 
-    function render(product) {
+function displayItemsInTrolley(){
 
-        let output = `
-              <div class="product-display" >
-               <img src = "${product.image}" class="product-display-img-top" alt= "${product.title}">
-                   <div class = "product-display-body">
-                       <h5 class="product-display-title">${product.title}</h5>
-                        <p class="product-display-text">${product.description}</p> 
-                   </div>
-           </div>
-           `;
-        document.getElementById("card").innerHTML = output;
+    const itemsInCart = loadCartFromStorage();
+    const displayItems = document.getElementById("display-shopping-cart-items")
+
+    if (!displayItems) {
+        console.error("Element with ID 'display-shopping-cart-items' not found.");
+        return;
     }
 
-    function validateName(nameInput) {
-        let validateNameInput = document.getElementById("inputValidationName")
+    console.log("Loaded cart items:", itemsInCart);
 
-        if (nameInput.length < 2 || nameInput.length > 50) {
-            validateNameInput.style.display = "block";
-            return false;
-        } else {
-            validateNameInput.style.display = "none";
-            return true;
-        }
+    if (itemsInCart.length === 0) {
+        displayItems.innerHTML ="<p>Your cart is empty</p>";
+        return
     }
 
-    function validateEmail(emailInput) {
-        let validateEmailInput = document.getElementById("inputValidationEmail")
+    let displayHtml = "";
+    let totalPrice = 0;
 
-        if (!emailInput.includes('@') || emailInput.length > 50) {
-            validateEmailInput.style.display = "block";
-            return false;
-        } else {
-            validateEmailInput.style.display = "none";
-            return true;
+    itemsInCart.forEach(item => {
 
-        }
-    }
+        const itemTotalPrice =item.quantity * item.price *10;
+        totalPrice += itemTotalPrice;
 
-    function validatePhoneNumber(phoneNumberInput) {
-        let validatePhoneNumberInput = document.getElementById("inputValidationPhoneNumber")
-        if (!/^[\d\-()]{1,50}$/.test(phoneNumberInput)) {
-            validatePhoneNumberInput.style.display = "block";
-            return false;
-        } else {
-            validatePhoneNumberInput.style.display = "none";
-            return true;
-        }
-    }
+        displayHtml += `
+        <div class = "shopping-cart-items"> 
+            <div class="item-picture"> 
+            <img src="${item.image}" class="card-img-top p-4" alt="${item.title}">
+            </div>
+            
+            <div class="item-quantity"> <h5>Antal</h5> <p> ${item.quantity} </p>     
+            <button class="button-add" data-id="${item.id}">+</button>
+            <button class="button-remove" data-id="${item.id}">-</button> 
+            <div class = "item-price"> <p> ${itemTotalPrice} SEK</p>
+            </div>
+          </div>
+        </div> `;
+    });
 
-    function validateAddress(addressInput) {
-        let validateAddressInput = document.getElementById("inputValidationAddress")
+    displayHtml += `
+    <div class="total-sum mt-3">
+        <h5>Att betala: ${totalPrice} SEK</h5>
+    </div>
+    
+    <button class="button-remove-all">Töm varukorgen</button>
+    
+`;
 
-        if (addressInput.length < 2 || addressInput.length > 50) {
-            validateAddressInput.style.display = "block";
-            return false;
-        } else {
-            validateAddressInput.style.display = "none";
-            return true;
-        }
-    }
+    displayItems.innerHTML = displayHtml;
 
-    function validateZipCode(zipCodeInput) {
-        let validateZipCodeInput = document.getElementById("inputValidationZipCode")
-
-        if (zipCodeInput.length !== 5 || isNaN(zipCodeInput)) {
-            validateZipCodeInput.style.display = "block";
-            return false;
-        } else {
-            validateZipCodeInput.style.display = "none";
-            return true;
-        }
-    }
-
-    function validateCity(cityInput) {
-        let validateCityInput = document.getElementById("inputValidationCity")
-        if (cityInput.length < 2 || cityInput.length > 50) {
-            validateCityInput.style.display = "block";
-            return false;
-        } else {
-            validateCityInput.style.display = "none";
-            return true;
-        }
 }
+
+function handleButtonClicks() {
+
+    document.addEventListener('click', function (e) {
+
+        if (e.target.classList.contains('button-add') || e.target.classList.contains('button-remove')) {
+            const itemId = e.target.getAttribute('data-id'); // Get the item ID
+
+            let itemsInCart = loadCartFromStorage();
+
+            const item = itemsInCart.find(i => i.id === Number(itemId));
+
+            if (e.target.classList.contains('button-add')) {
+                item.quantity++;
+            }
+
+            if (e.target.classList.contains('button-remove')) {
+                if (item.quantity > 1) {
+                    item.quantity--;
+                } else {
+                    const index = itemsInCart.findIndex(i => i.id === Number(itemId));
+                    itemsInCart.splice(index, 1);
+                }
+            }
+
+            saveCartToStorage(itemsInCart);
+            displayItemsInTrolley();
+            cartCounter();
+
+        }
+    });
+}
+
+function removeAllItems() {
+    document.addEventListener('click', function (e) {
+        if (e.target.classList.contains('button-remove-all')) {
+            localStorage.clear();
+            console.log("clicked worked")
+            displayItemsInTrolley();
+            cartCounter();
+        }
+    });
+
+}
+
+        function validateName(nameInput) {
+            let validateNameInput = document.getElementById("inputValidationName")
+
+            if (nameInput.length < 2 || nameInput.length > 50) {
+                validateNameInput.style.display = "block";
+                return false;
+            } else {
+                validateNameInput.style.display = "none";
+                return true;
+            }
+        }
+
+        function validateEmail(emailInput) {
+            let validateEmailInput = document.getElementById("inputValidationEmail")
+
+            if (!emailInput.includes('@') || emailInput.length > 50) {
+                validateEmailInput.style.display = "block";
+                return false;
+            } else {
+                validateEmailInput.style.display = "none";
+                return true;
+
+            }
+        }
+
+        function validatePhoneNumber(phoneNumberInput) {
+            let validatePhoneNumberInput = document.getElementById("inputValidationPhoneNumber")
+            if (!/^[\d\-()]{1,50}$/.test(phoneNumberInput)) {
+                validatePhoneNumberInput.style.display = "block";
+                return false;
+            } else {
+                validatePhoneNumberInput.style.display = "none";
+                return true;
+            }
+        }
+
+        function validateAddress(addressInput) {
+            let validateAddressInput = document.getElementById("inputValidationAddress")
+
+            if (addressInput.length < 2 || addressInput.length > 50) {
+                validateAddressInput.style.display = "block";
+                return false;
+            } else {
+                validateAddressInput.style.display = "none";
+                return true;
+            }
+        }
+
+        function validateZipCode(zipCodeInput) {
+            let validateZipCodeInput = document.getElementById("inputValidationZipCode")
+
+            if (zipCodeInput.length !== 5 || isNaN(zipCodeInput)) {
+                validateZipCodeInput.style.display = "block";
+                return false;
+            } else {
+                validateZipCodeInput.style.display = "none";
+                return true;
+            }
+        }
+
+        function validateCity(cityInput) {
+            let validateCityInput = document.getElementById("inputValidationCity")
+            if (cityInput.length < 2 || cityInput.length > 50) {
+                validateCityInput.style.display = "block";
+                return false;
+            } else {
+                validateCityInput.style.display = "none";
+                return true;
+            }
+        }

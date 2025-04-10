@@ -3,6 +3,7 @@ function getHeader() {
         .then(response => response.text())
         .then(data => {
             document.getElementById('header').innerHTML = data;
+            cartCounter();
         })
 }
     getHeader();

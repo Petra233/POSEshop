@@ -18,9 +18,13 @@
 <div class ="container">
   <div class="row mx-2 my-1 gy-3 mb-4">
     <h1 class ="w-100">Beställningsformulär</h1>
-    <form id ="myForm">
-      <div id = "card">
+      <div class="col-auto">
+      <button class = button-homepage onclick="window.location.href='items.html'">Tillbaka till produktsidan</button>
       </div>
+      <div id = "display-shopping-cart-items">
+      </div>
+    <form id ="myForm">
+
 
         <div class="row">
           <div class="col-md-6">
@@ -66,7 +70,7 @@
                 </div>
                   <div class="row">
                     <div class="col-md-6">
-                        <button type =submit class = "btn-form btn-sm mt-3">Beställ</button>
+                        <button type=submit class = "btn-form btn-sm mt-3">Beställ</button>
 
         </div>
                   </div>
@@ -76,7 +80,9 @@
 <div id="footer-placeholder"></div>
 <script src="js/footer.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
 <script src="js/form.js"></script>
+<script src="js/cart.js"></script>
 
 </body>
 </html>

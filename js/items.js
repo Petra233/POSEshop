@@ -1,19 +1,39 @@
-function getItems() {
-    fetch('https://fakestoreapi.com/products')
-        .then(response => response.json())
-        .then(data => {
-            saveItemsToLocalStorage(data);
-            renderItems(data);
-    })
-    function saveItemsToLocalStorage(items) {
-        localStorage.setItem('items', JSON.stringify(items));
+function addToCart(productId) {
+    const products = JSON.parse(localStorage.getItem("items")) || [];
+    const product = products.find(p => p.id === Number(productId))
+
+    if (product) {
+        let cart = loadCartFromStorage();
+        const existingProduct = cart.find(item => item.id === product.id);
+
+        if (existingProduct) {
+            existingProduct.quantity += 1;
+        } else {
+            cart.push({...product, quantity: 1});
+        }
+        saveCartToStorage(cart);
+        cartCounter();
     }
+}
 
-    function renderItems(items) {
-        let output = "";
 
-        items.forEach(item => {
-            output += `
+    function getItems() {
+        fetch('https://fakestoreapi.com/products')
+            .then(response => response.json())
+            .then(data => {
+                saveItemsToLocalStorage(data);
+                renderItems(data);
+            })
+
+        function saveItemsToLocalStorage(items) {
+            localStorage.setItem('items', JSON.stringify(items));
+        }
+
+        function renderItems(items) {
+            let output = "";
+
+            items.forEach(item => {
+                output += `
         <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
         <div class="card shadow-sm">
         <img src="${item.image}" class="card-img-top p-4" alt="${item.title}">
@@ -30,49 +50,61 @@ function getItems() {
             <button class="btn btn-light mb-2 w-100" data-bs-toggle="collapse" data-bs-target="#description-${item.id}">
                 Mer info </button>
             <!--Beställnings-knapp-->
-            <a href="orderform.html?id=${item.id}" class="btn btn-light w-100 " id="btn2">Beställ</a>
+             <button class="btn btn-light mb-2 w-100 add-to-cart" data-id="${item.id}">Add to Cart</button>
+           <!-- <a href="orderform.html?id=${item.id}" class="btn btn-light w-100 " id="btn2">Beställ</a>-->
         </div>
         </div>
         </div>
             `;
-        })
-        document.getElementById("items").innerHTML = output;
+            })
+            document.getElementById("items").innerHTML = output;
+
+            const addToCartButtons = document.querySelectorAll('.add-to-cart');
+            addToCartButtons.forEach(button => {
+                button.addEventListener('click', function (e) {
+                    const productId = e.target.getAttribute('data-id')
+                    addToCart(productId);
+                    console.log(productId)
+                })
+            })
+
+        }
     }
-}
 
-getItems();
+    getItems();
 
 
-function getFourItemsByCategory(category, containerId) {
-    fetch(`https://fakestoreapi.com/products/category/${category}`)
-        .then(response => response.json())
-        .then(data => renderItemsImages(data, containerId))
-        .catch(error => console.error("Fel vid hämtning av data:", error));
-}
+    function getFourItemsByCategory(category, containerId) {
+        fetch(`https://fakestoreapi.com/products/category/${category}`)
+            .then(response => response.json())
+            .then(data => renderItemsImages(data, containerId))
+            .catch(error => console.error("Fel vid hämtning av data:", error));
+    }
 
-function renderItemsImages(items, containerId) {
-    let output = "";
+    function renderItemsImages(items, containerId) {
+        let output = "";
 
-    items.slice(0, 4).forEach(item => {
-        output += `
+        items.slice(0, 4).forEach(item => {
+            output += `
             <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
                 <div class="card shadow-sm">
                     <img src="${item.image}" class="card-img-top p-4" alt="${item.title}">
                 </div>
             </div>
         `;
+        });
+
+        document.getElementById(containerId).innerHTML = output;
+    }
+
+    const categories = [
+        {name: "women's clothing", containerId: "items-women-s-clothing"},
+        {name: "men's clothing", containerId: "items-men-s-clothing"},
+        {name: "jewelery", containerId: "items-jewelery"},
+        {name: "electronics", containerId: "items-electronics"}
+    ];
+
+    categories.forEach(category => {
+        getFourItemsByCategory(category.name, category.containerId);
     });
 
-    document.getElementById(containerId).innerHTML = output;
-}
-
-const categories = [
-    { name: "women's clothing", containerId: "items-women-s-clothing" },
-    { name: "men's clothing", containerId: "items-men-s-clothing" },
-    { name: "jewelery", containerId: "items-jewelery" },
-    { name: "electronics", containerId: "items-electronics" }
-];
-
-categories.forEach(category => {
-    getFourItemsByCategory(category.name, category.containerId);
-});
