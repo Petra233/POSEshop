@@ -13,7 +13,7 @@
 });*/
 
 document.addEventListener('DOMContentLoaded', function () {
-    displayItemsInTrolley();
+    displayItemsInCart();
     cartCounter();
     handleButtonClicks();
     removeAllItems();
@@ -49,20 +49,17 @@ function saveData(e) {
     localStorage.clear();
 }
 
-function displayItemsInTrolley(){
+function displayItemsInCart(){
 
     const itemsInCart = loadCartFromStorage();
     const displayItems = document.getElementById("display-shopping-cart-items")
 
     if (!displayItems) {
-        console.error("Element with ID 'display-shopping-cart-items' not found.");
         return;
     }
 
-    console.log("Loaded cart items:", itemsInCart);
-
     if (itemsInCart.length === 0) {
-        displayItems.innerHTML ="<p>Your cart is empty</p>";
+        displayItems.innerHTML ="<p>Varukorgen är tom</p>";
         return
     }
 
@@ -71,7 +68,7 @@ function displayItemsInTrolley(){
 
     itemsInCart.forEach(item => {
 
-        const itemTotalPrice =item.quantity * item.price *10;
+        const itemTotalPrice=Math.ceil(item.quantity * Number(item.price) * 10);
         totalPrice += itemTotalPrice;
 
         displayHtml += `
@@ -107,7 +104,7 @@ function handleButtonClicks() {
     document.addEventListener('click', function (e) {
 
         if (e.target.classList.contains('button-add') || e.target.classList.contains('button-remove')) {
-            const itemId = e.target.getAttribute('data-id'); // Get the item ID
+            const itemId = e.target.getAttribute('data-id');
 
             let itemsInCart = loadCartFromStorage();
 
@@ -127,7 +124,7 @@ function handleButtonClicks() {
             }
 
             saveCartToStorage(itemsInCart);
-            displayItemsInTrolley();
+            displayItemsInCart();
             cartCounter();
 
         }
@@ -139,7 +136,7 @@ function removeAllItems() {
         if (e.target.classList.contains('button-remove-all')) {
             localStorage.clear();
             console.log("clicked worked")
-            displayItemsInTrolley();
+            displayItemsInCart();
             cartCounter();
         }
     });

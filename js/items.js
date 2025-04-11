@@ -1,23 +1,4 @@
-function addToCart(productId) {
-    const products = JSON.parse(localStorage.getItem("items")) || [];
-    const product = products.find(p => p.id === Number(productId))
-
-    if (product) {
-        let cart = loadCartFromStorage();
-        const existingProduct = cart.find(item => item.id === product.id);
-
-        if (existingProduct) {
-            existingProduct.quantity += 1;
-        } else {
-            cart.push({...product, quantity: 1});
-        }
-        saveCartToStorage(cart);
-        cartCounter();
-    }
-}
-
-
-    function getItems() {
+ function getItems() {
         fetch('https://fakestoreapi.com/products')
             .then(response => response.json())
             .then(data => {
@@ -50,7 +31,7 @@ function addToCart(productId) {
             <button class="btn btn-light mb-2 w-100" data-bs-toggle="collapse" data-bs-target="#description-${item.id}">
                 Mer info </button>
             <!--Beställnings-knapp-->
-             <button class="btn btn-light mb-2 w-100 add-to-cart" data-id="${item.id}">Add to Cart</button>
+             <button class="btn btn-light mb-2 w-100 add-to-cart" data-id ="${item.id}">Add to Cart</button>
            <!-- <a href="orderform.html?id=${item.id}" class="btn btn-light w-100 " id="btn2">Beställ</a>-->
         </div>
         </div>
